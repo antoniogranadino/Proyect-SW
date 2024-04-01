@@ -1,45 +1,41 @@
+const apiUrl = "https://www.swapi.tech/api/";
 const getState = ({ getStore, getActions, setStore }) => {
-	return {
-		store: {
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
-		},
-		actions: {
-			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
-			},
-			loadSomeData: () => {
-				/**
-					fetch().then().then(data => setStore({ "foo": data.bar }))
-				*/
-			},
-			changeColor: (index, color) => {
-				//get the store
-				const store = getStore();
+  return {
+    store: {
+      characters: [],
+      planets: [],
+    },
+    actions: {
+      getPeople: async () => {
+        const response = await fetch(`${apiUrl}/people`);
+        const data = await response.json();
+        console.log(data.results);
 
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
-				});
+        let characters = [];
+        for (let item of data.results) {
+          const characterResponse = await fetch(item.url);
+          const characterData = await characterResponse.json();
+          characters.push(characterData.result);
+        }
+        setStore({ characters: characters });
+        console.log(characters);
+      },
 
-				//reset the global store
-				setStore({ demo: demo });
-			}
-		}
-	};
+      getPlanets: async () => {
+        const response = await fetch(`${apiUrl}/planets`);
+        const data = await response.json();
+        console.log(data.results);
+
+        let planets = [];
+        for (let item of data.results) {
+          const planetsResponse = await fetch(item.url);
+          const planetsData = await planetsResponse.json();
+          planets.push(planetsData.result);
+        }
+        setStore({ planets: planets });
+      },
+    },
+  };
 };
 
 export default getState;
